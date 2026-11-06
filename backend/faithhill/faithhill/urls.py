@@ -15,18 +15,30 @@ admin/                         Django admin (developer / superadmin fallback)
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.db import connection
 from django.http import HttpResponse, JsonResponse
 from django.urls import include, path
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import TokenRefreshView
 
-from .api_auth import MeView
+from .api_auth import MeView, ThrottledTokenObtainPairView
 
 
 def health(_request):
-    return JsonResponse({"status": "ok"})
+    """
+    Liveness + readiness probe.
+
+    Verifies the database connection because Render restarts a service whose
+    health check fails — a container that cannot reach Supabase should be
+    replaced, not kept alive.
+    """
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+    except Exception as exc:  # noqa: BLE001
+        return JsonResponse(
+            {"status": "error", "database": str(exc)[:200]}, status=503
+        )
+    return JsonResponse({"status": "ok", "database": "ok"})
 
 
 def root_index(_request):
@@ -54,7 +66,7 @@ urlpatterns = [
     path("", root_index, name="root-index"),
     path("admin/", admin.site.urls),
     path("api/health/", health, name="api-health"),
-    path("api/auth/token/", TokenObtainPairView.as_view(), name="token-obtain-pair"),
+    path("api/auth/token/", ThrottledTokenObtainPairView.as_view(), name="token-obtain-pair"),
     path("api/auth/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("api/auth/me/", MeView.as_view(), name="auth-me"),
     path("api/", include("church.urls")),

@@ -198,3 +198,44 @@ Refinements to §4 based on the templates:
 - Consistent branding once colors/logo exist (see open question 3).
 - Integrate rather than build: YouTube/Facebook for livestream, email marketing service for newsletter, Paystack/Flutterwave for giving (pending open question 5).
 - Fresh content discipline: the staff dashboard exists precisely to enable this.
+
+---
+
+## Phase 4 — Deployment (Render + Supabase + YouTube)
+
+**Status:** ✅ Configured, ready to deploy. See `DEPLOYMENT.md` for the walkthrough.
+
+| Concern | Decision | Why |
+|---|---|---|
+| App host | Render (free tier) | Git-based deploys, free TLS, static sites included |
+| Database | Supabase Postgres (session pooler) | Managed, free tier, survives redeploys |
+| Image storage | Supabase Storage (S3 protocol) | Render's disk is ephemeral — uploads must live elsewhere |
+| Sermon video | YouTube, staff paste the link | Videos stay on the church's channel; site embeds `youtube-nocookie` |
+| YouTube auth | None needed (manual linking) | No API key, no quota, no OAuth refresh to maintain |
+| Frontends | Two Render static sites | Public site + staff console, both CDN-served |
+| Staff console URL | Unguessable path (`VITE_BASE_PATH`) | Keeps it out of casual scanning; JWT + `is_staff` is the real lock |
+| Security | JWT, login throttling, HSTS, noindex | Defense in depth on a public-facing admin |
+
+### How YouTube integration works
+
+Staff never touch an API key. They paste whatever YouTube gives them — a share
+link, a browser URL, a livestream URL, an embed snippet, or a bare video id —
+into the sermon's **Video URL** field. The API (`church/youtube.py`):
+
+1. extracts the video id from any of those shapes,
+2. rewrites it to a canonical `https://www.youtube.com/watch?v=ID`,
+3. exposes `video_id` and a `youtube_thumbnail` poster frame.
+
+The public site then replaces the field with a `youtube-nocookie.com` player, so
+no tracking cookies are set until the visitor presses play. If a staff member
+uploads custom artwork it wins over the YouTube poster.
+
+### Deployment invariants worth remembering
+
+- **`DEBUG=False` requires `DATABASE_URL`.** The app refuses to boot with SQLite
+  in production, because a container filesystem would silently lose all content
+  on the next deploy.
+- **Frontend env vars are baked in at build time.** Changing `VITE_API_URL` needs
+  a redeploy of that static site, not a restart.
+- **The staff console path is obscurity, not security.** Authorization is
+  enforced server-side on every request.

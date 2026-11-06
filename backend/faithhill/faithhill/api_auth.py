@@ -1,8 +1,25 @@
-"""Small auth helpers for the staff dashboard."""
+"""
+Small auth helpers for the staff dashboard.
+"""
 
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+
+class ThrottledTokenObtainPairView(TokenObtainPairView):
+    """
+    JWT login with brute-force protection.
+
+    The staff dashboard lives on an unguessable URL, but that is obscurity, not
+    security — this throttle is the actual lock on the door when combined with
+    strong passwords. Rate is configurable via THROTTLE_LOGIN (default 10/min).
+    """
+
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "login"
 
 
 class MeView(APIView):

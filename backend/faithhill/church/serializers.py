@@ -5,6 +5,7 @@ StaffProfile, which hides login-account info from the public API."""
 
 from rest_framework import serializers
 
+from . import youtube
 from .models import (
     Announcement,
     Belief,
@@ -40,17 +41,46 @@ class SermonSeriesSerializer(serializers.ModelSerializer):
 
 class SermonSerializer(serializers.ModelSerializer):
     series_detail = SermonSeriesSerializer(source="series", read_only=True)
+    video_id = serializers.SerializerMethodField()
+    youtube_thumbnail = serializers.SerializerMethodField()
 
     class Meta:
         model = Sermon
         fields = [
             "id", "title", "slug", "speaker", "sermon_date", "scripture",
-            "topic", "description", "video_url", "audio_file", "notes",
-            "thumbnail", "series", "series_detail", "is_published",
-            "created_at", "updated_at",
+            "topic", "description", "video_url", "video_id",
+            "youtube_thumbnail", "audio_file", "notes", "thumbnail", "series",
+            "series_detail", "is_published", "created_at", "updated_at",
         ]
         read_only_fields = ["slug"]
         extra_kwargs = {"series": {"required": False, "allow_null": True}}
+
+    def get_video_id(self, obj) -> str | None:
+        return youtube.extract_video_id(obj.video_url)
+
+    def get_youtube_thumbnail(self, obj) -> str | None:
+        """Fallback poster frame when staff didn't upload a thumbnail."""
+        if obj.thumbnail:
+            return None
+        return youtube.youtube_thumbnail(obj.video_url)
+
+    def to_internal_value(self, data):
+        """
+        Normalize the video link *before* field validation.
+
+        Staff sometimes paste a full <iframe> snippet or a bare video id; both
+        would fail URLField's own validation, so they are canonicalized into a
+        watch URL first. That keeps the field strict (no junk stored) while
+        accepting whatever YouTube's share button produces.
+        """
+        if hasattr(data, "copy"):
+            data = data.copy()
+            raw = data.get("video_url")
+            if raw and isinstance(raw, str):
+                normalized = youtube.normalize_video_url(raw)
+                if normalized:
+                    data["video_url"] = normalized
+        return super().to_internal_value(data)
 
 
 class EventSerializer(serializers.ModelSerializer):

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import {
   fetchAll,
   formatTime,
-  mediaUrl,
+  sermonArtwork,
   serviceLine,
   type Announcement,
   type Sermon,
@@ -151,7 +151,7 @@ export default function Home() {
             {latestSermon ? (
               <Link to={`/messages/${latestSermon.slug}`} className="featured-art" aria-label={`Watch ${latestSermon.title}`}>
                 <img
-                  src={mediaUrl(latestSermon.thumbnail) || mediaUrl(latestSermon.series_detail?.artwork) || "/images/series-foundations.jpg"}
+                  src={sermonArtwork(latestSermon)}
                   alt=""
                 />
                 <span className="play">▶</span>

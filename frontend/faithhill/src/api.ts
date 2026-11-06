@@ -36,6 +36,10 @@ export interface Sermon {
   topic: string;
   description: string;
   video_url: string;
+  /** YouTube id parsed by the API, or null for non-YouTube links. */
+  video_id: string | null;
+  /** YouTube poster frame — only set when no custom thumbnail was uploaded. */
+  youtube_thumbnail: string | null;
   audio_file: string | null;
   notes: string;
   thumbnail: string | null;
@@ -112,8 +116,24 @@ export interface GivingOption {
   url: string;
 }
 
+/**
+ * Base URL of the Django API.
+ *
+ * Development: empty, so requests stay relative and the Vite proxy forwards
+ * them to localhost:8000 (also keeps the Arena preview same-origin).
+ * Production: set VITE_API_URL at build time, e.g.
+ *   VITE_API_URL=https://faith-hill-api.onrender.com
+ */
+const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "");
+
+/** Resolve an app path ("/api/sermons/") against the API base URL. */
+export function apiPath(path: string): string {
+  if (!path.startsWith("/")) return path;
+  return `${API_BASE}${path}`;
+}
+
 async function get<T>(path: string): Promise<T> {
-  const res = await fetch(path);
+  const res = await fetch(apiPath(path));
   if (!res.ok) throw new Error(`Request failed: ${path} (${res.status})`);
   return res.json() as Promise<T>;
 }
@@ -126,14 +146,14 @@ export async function fetchAll<T>(path: string): Promise<T[]> {
 }
 
 export async function fetchOne<T>(path: string): Promise<T | null> {
-  const res = await fetch(path);
+  const res = await fetch(apiPath(path));
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`Request failed: ${path}`);
   return res.json() as Promise<T>;
 }
 
 export async function submit<T extends object>(path: string, payload: T) {
-  const res = await fetch(path, {
+  const res = await fetch(apiPath(path), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -141,14 +161,54 @@ export async function submit<T extends object>(path: string, payload: T) {
   return res.ok;
 }
 
-/** DRF returns absolute URLs for media; we only need the path (dev proxy serves /media). */
+/**
+ * Resolve a media URL for an <img src>.
+ *
+ * Two storage setups exist:
+ *  - Local development: Django serves /media/... on the API origin, so the path
+ *    is used and the Vite proxy (or same origin) serves it.
+ *  - Production: files live in Supabase Storage, and Django returns an absolute
+ *    CDN URL. That must be used as-is — rewriting it to a path would 404.
+ *
+ * Absolute URLs that point at the API host are reduced to a path so they go
+ * through the proxy in development; every other absolute URL is returned
+ * untouched.
+ */
 export function mediaUrl(url?: string | null): string {
   if (!url) return "";
+  let parsed: URL;
   try {
-    return new URL(url).pathname;
+    parsed = new URL(url, window.location.origin);
   } catch {
     return url;
   }
+  if (!/^https?:$/.test(parsed.protocol)) return url;
+
+  const isAbsolute = /^https?:\/\//i.test(url);
+  if (!isAbsolute) return url;
+
+  // Same host as the API this app talks to → keep relative so dev proxy works.
+  const apiHost = API_BASE ? new URL(API_BASE).host : window.location.host;
+  if (parsed.host === apiHost || parsed.host === window.location.host) {
+    return parsed.pathname;
+  }
+  // Anything else (Supabase CDN, YouTube thumbnails) is already a usable URL.
+  return url;
+}
+
+/**
+ * Artwork for a sermon card, in priority order:
+ * uploaded thumbnail → YouTube poster frame → series artwork → bundled image.
+ * The YouTube poster keeps the library looking complete before staff upload
+ * custom art for every sermon.
+ */
+export function sermonArtwork(s: Sermon): string {
+  return (
+    mediaUrl(s.thumbnail) ||
+    s.youtube_thumbnail ||
+    mediaUrl(s.series_detail?.artwork) ||
+    "/images/series-foundations.jpg"
+  );
 }
 
 /** "09:00:00" → "9AM" · "10:45:00" → "10:45AM" */
