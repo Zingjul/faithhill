@@ -1,10 +1,21 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+import ErrorBoundary, { showFatalError } from "./components/ErrorBoundary";
+import "./styles.css";
 
-createRoot(document.getElementById('root')!).render(
+const rootEl = document.getElementById("root")!;
+
+createRoot(rootEl, {
+  onUncaughtError: (error) => showFatalError(rootEl, error),
+  onCaughtError: () => undefined,
+}).render(
   <StrictMode>
-    <App />
+    <BrowserRouter>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </BrowserRouter>
   </StrictMode>,
-)
+);
