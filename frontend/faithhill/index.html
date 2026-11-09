@@ -11,9 +11,72 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
+    <script>
+      // Visibility net: if the app fails to boot, say why instead of showing a
+      // blank white page. Covers three cases React cannot report itself —
+      // the bundle failing to load (404 / wrong MIME type), an unhandled
+      // promise rejection, and the app never mounting at all.
+      (function () {
+        var shown = false;
+        function report(title, detail) {
+          if (shown) return;
+          shown = true;
+          var root = document.getElementById("root");
+          if (!root) return;
+          root.innerHTML =
+            '<div style="min-height:100vh;display:grid;place-items:center;padding:2rem;font-family:system-ui,sans-serif">' +
+            '<div style="max-width:640px">' +
+            '<h1 style="margin:0 0 .5rem">' + title + "</h1>" +
+            '<p style="margin:0 0 1rem;color:#444">This message exists so the problem can be reported instead of guessed at.</p>' +
+            '<pre style="background:#fff2f1;border:1px solid #f5c5c0;border-radius:10px;padding:1rem;white-space:pre-wrap;overflow:auto">' +
+            String(detail).replace(/[<>&]/g, function (c) {
+              return { "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c];
+            }) +
+            "</pre>" +
+            '<p style="margin:1rem 0 0;font-size:14px;color:#666">Also check the browser console and the Network tab for this page.</p>' +
+            "</div></div>";
+        }
+
+        window.addEventListener("error", function (event) {
+          // A failed <script> load fires error on the element, not on window;
+          // window-level errors here are genuine exceptions during startup.
+          if (event.message) report("The site failed to start", event.message);
+        });
+
+        window.addEventListener("unhandledrejection", function (event) {
+          var reason = event.reason;
+          report(
+            "The site failed to start",
+            reason && reason.stack ? reason.stack : String(reason)
+          );
+        });
+
+        // Watchdog: if React has not mounted anything after 10 seconds, the
+        // bundle almost certainly never loaded.
+        window.addEventListener("load", function () {
+          setTimeout(function () {
+            var root = document.getElementById("root");
+            if (root && root.children.length === 0) {
+              report(
+                "The site did not load",
+                "No content was rendered after 10 seconds. The JavaScript bundle probably failed to download.\n\n" +
+                  "Open the Network tab and check the /assets/*.js request: it should return 200 with type application/javascript.\n" +
+                  "A 404 means the publish directory is wrong; text/html means a rewrite rule is catching asset requests."
+              );
+            }
+          }, 10000);
+        });
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div style="padding:2rem;font-family:system-ui,sans-serif">
+        <h1>JavaScript is required</h1>
+        <p>Please enable JavaScript to view the Faith Hill website.</p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
