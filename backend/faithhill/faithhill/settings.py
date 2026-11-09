@@ -151,7 +151,47 @@ WSGI_APPLICATION = "faithhill.wsgi.application"
 
 DATABASE_URL = env("DATABASE_URL")
 
+
+def check_database_url(url: str) -> None:
+    """
+    Catch the three mistakes Supabase's dashboard makes easy.
+
+    Each one otherwise surfaces as "password authentication failed", which
+    sends you hunting for the wrong problem.
+    """
+    from urllib.parse import urlparse
+
+    # Checked on the raw string: the brackets are not valid in a URL and would
+    # make urlparse() raise before we can give a useful message.
+    if "[" in url or "]" in url:
+        raise RuntimeError(
+            "DATABASE_URL still contains the [YOUR-PASSWORD] placeholder. "
+            "Replace it with the database password you set when creating the "
+            "Supabase project (Project Settings -> Database -> Reset password)."
+        )
+
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+    user = parsed.username or ""
+    port = parsed.port
+
+    if port == 6543:
+        raise RuntimeError(
+            "DATABASE_URL uses port 6543 (transaction pooling), which breaks "
+            "Django. In Supabase use Connect -> Connection pooling -> SESSION "
+            "mode (port 5432)."
+        )
+
+    if "pooler.supabase.com" in host and "." not in user:
+        raise RuntimeError(
+            f'DATABASE_URL username is "{user}", but Supabase\'s pooler needs '
+            f'"{user}.<project-ref>" (for example "postgres.abcdefghijklmnop"). '
+            "Copy the whole string from Connect -> Connection pooling."
+        )
+
+
 if DATABASE_URL:
+    check_database_url(DATABASE_URL)
     DATABASES = {
         "default": dj_database_url.parse(
             DATABASE_URL,
