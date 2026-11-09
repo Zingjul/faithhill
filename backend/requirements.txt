@@ -19,6 +19,9 @@ dj-database-url>=2.2,<3.0
 # Serves Django admin static files without nginx; compresses + caches them.
 whitenoise>=6.7,<7.0
 
+# Reads backend/faithhill/.env so local settings work without exporting vars.
+python-dotenv>=1.0,<2.0
+
 # Supabase Storage speaks the S3 protocol, so a plain S3 client is enough.
 boto3>=1.35,<2.0
 

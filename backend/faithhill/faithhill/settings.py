@@ -14,8 +14,15 @@ from pathlib import Path
 
 import django
 import dj_database_url
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load backend/faithhill/.env (or backend/.env) before reading any setting, so
+# `python manage.py ...` picks up the file without exporting variables by hand.
+# On Render there is no .env file and this is a no-op — real env vars win.
+for candidate in (BASE_DIR / ".env", BASE_DIR.parent / ".env"):
+    load_dotenv(candidate, override=False)
 
 
 # ---------------------------------------------------------------------------
@@ -47,16 +54,31 @@ def env_list(key: str, default: str = "") -> list[str]:
 # Render sets DEBUG=False explicitly (see render.yaml).
 DEBUG = env_bool("DEBUG", True)
 
-# A real secret is mandatory in production; the fallback only ever applies
-# when DEBUG is on, so it can never silently ship to a live site.
-SECRET_KEY = env("SECRET_KEY") or (
-    "django-insecure-dev-only-key-change-me" if DEBUG else ""
-)
+# A real secret is mandatory in production. In development we generate one and
+# persist it to .env, so local commands never fail and sessions stay valid
+# across restarts (a fresh random key each run would log you out every time).
+SECRET_KEY = env("SECRET_KEY")
 if not SECRET_KEY:
-    raise RuntimeError(
-        "SECRET_KEY is not set. Render generates one automatically; for any "
-        "other host set it in the environment. See DEPLOYMENT.md."
-    )
+    if not DEBUG:
+        raise RuntimeError(
+            "SECRET_KEY is not set. Set it in the environment. "
+            "Render generates one automatically; anywhere else run: "
+            'python -c "import secrets; print(secrets.token_urlsafe(64))"'
+        )
+    import secrets
+
+    SECRET_KEY = secrets.token_urlsafe(64)
+    try:
+        env_file = BASE_DIR / ".env"
+        existing = env_file.read_text(encoding="utf-8") if env_file.exists() else ""
+        if "SECRET_KEY=" not in existing:
+            with env_file.open("a", encoding="utf-8") as handle:
+                handle.write(
+                    ("\n" if existing and not existing.endswith("\n") else "")
+                    + f"SECRET_KEY={SECRET_KEY}\n"
+                )
+    except OSError:
+        pass  # read-only filesystem: the ephemeral key is still fine for dev
 
 # Render injects RENDER_EXTERNAL_HOSTNAME; explicit ALLOWED_HOSTS wins if set.
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS")
