@@ -7,3 +7,20 @@ djangorestframework>=3.15,<4.0
 djangorestframework-simplejwt>=5.3,<6.0
 django-cors-headers>=4.6,<5.0
 Pillow>=10.0
+
+# --- Production ---------------------------------------------------------
+# Postgres driver for Supabase. psycopg[binary] ships prebuilt wheels, so no
+# compiler or libpq is needed on Render's build image.
+psycopg[binary]>=3.2,<4.0
+
+# DATABASE_URL parsing (Supabase connection string -> Django settings)
+dj-database-url>=2.2,<3.0
+
+# Serves Django admin static files without nginx; compresses + caches them.
+whitenoise>=6.7,<7.0
+
+# Supabase Storage speaks the S3 protocol, so a plain S3 client is enough.
+boto3>=1.35,<2.0
+
+# WSGI server for production.
+gunicorn>=23.0,<24.0

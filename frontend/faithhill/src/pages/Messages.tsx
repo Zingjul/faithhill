@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import {
   fetchAll,
   formatDate,
-  mediaUrl,
+  sermonArtwork,
   type Sermon,
   type SermonSeries,
 } from "../api";
@@ -11,10 +11,8 @@ import CarouselRow from "../components/CarouselRow";
 import Reveal from "../components/Reveal";
 
 const PAGE = 6;
-const FALLBACK_ART = "/images/series-foundations.jpg";
-
 export function sermonArt(s: Sermon): string {
-  return mediaUrl(s.thumbnail) || mediaUrl(s.series_detail?.artwork) || FALLBACK_ART;
+  return sermonArtwork(s);
 }
 
 export function SermonCard({ s }: { s: Sermon }) {
