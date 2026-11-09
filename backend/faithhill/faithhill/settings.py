@@ -170,10 +170,38 @@ def check_database_url(url: str) -> None:
             "Supabase project (Project Settings -> Database -> Reset password)."
         )
 
+    # '#' starts the fragment, so an unencoded one in the password truncates the
+    # URL: urlparse() then reports no host/user and Django tries to connect to
+    # something nonsensical. It must be percent-encoded as %23.
+    if "#" in url:
+        raise RuntimeError(
+            "DATABASE_URL contains an unencoded '#' — everything after it is "
+            "treated as a URL fragment, so the host and password are lost. "
+            "Percent-encode it as %23, or reset the password in Supabase "
+            "(Project Settings -> Database) to letters and digits only."
+        )
+
     parsed = urlparse(url)
+    try:
+        port = parsed.port
+    except ValueError:
+        raise RuntimeError(
+            "DATABASE_URL could not be parsed — the port is not a number, "
+            "which usually means an unencoded '/' or '?' in the password. "
+            "Percent-encode it (/ -> %2F, ? -> %3F, @ -> %40), or reset the "
+            "password to letters and digits only."
+        ) from None
+
     host = parsed.hostname or ""
     user = parsed.username or ""
-    port = parsed.port
+
+    if not user or not host or not parsed.password:
+        raise RuntimeError(
+            "DATABASE_URL could not be parsed — it is missing a username, "
+            "password or host. Copy the string again with Supabase's Copy "
+            "button rather than selecting it by eye; the field is visually "
+            "truncated and hand-copying loses the tail."
+        )
 
     if port == 6543:
         raise RuntimeError(
