@@ -131,10 +131,16 @@ h3, .h-sm { font-size: var(--t-h4); letter-spacing: -0.01em; }
 }
 .split-bleed > .split-media { position: relative; min-height: clamp(340px, 46vw, 620px); }
 .split-bleed > .split-media img { position: absolute; width: 100%; height: 100%; object-fit: cover; }
+
+/* Copy sits optically centred: equal vertical padding top and bottom, and a
+   horizontal padding that matches on both sides unless overridden. Using the
+   same value top/bottom is what stops the block looking top-heavy when it is
+   shorter than the art beside it. */
 .split-bleed > .split-copy {
-  display: grid; align-content: center; align-items: start;
-  padding: var(--space-section) var(--gutter);
-  padding-left: clamp(2rem, 6vw, 6rem);
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  padding: clamp(3rem, 7vh, 6rem) clamp(1.75rem, 5vw, 5rem);
 }
 .split-bleed .split-copy .h-lg { max-width: 15ch; }
 .split-bleed.flip > .split-media { order: 2; }
@@ -310,14 +316,43 @@ h3, .h-sm { font-size: var(--t-h4); letter-spacing: -0.01em; }
 .split .frame img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4 / 3; }
 
 /* ---------------------------------------------------------------- carousel */
+/* A scroll row that fades out reads as a mistake: the heading sits dead
+   centre with one sliced card beside it. Instead the track is inset to the
+   same measure as the rest of the page, cards are capped so a whole number
+   fits, and the arrows sit on the heading's baseline on the right. */
 .carousel-wrap { position: relative; }
+
 .carousel {
-  display: flex; gap: 1.1rem; overflow-x: auto; scroll-snap-type: x mandatory;
-  padding: 0.3rem 0.1rem 1rem; scrollbar-width: none;
+  display: flex;
+  gap: var(--grid-gap);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 0.25rem 0 1.1rem;
+  scrollbar-width: none;
+  /* Fade only the last 24px, so partially-visible cards look intentional. */
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
 }
 .carousel::-webkit-scrollbar { display: none; }
-.carousel > * { scroll-snap-align: start; flex: 0 0 clamp(230px, 26vw, 300px); }
+
+/* Four across on desktop; the row stops short of slicing a card in half. */
+.carousel > * {
+  scroll-snap-align: start;
+  flex: 0 0 clamp(220px, calc((100% - 3 * var(--grid-gap)) / 4), 320px);
+}
+
 .carousel-arrows { display: flex; gap: 0.55rem; margin-top: 0.4rem; }
+
+/* Heading and arrows on one line: the section reads as a titled unit rather
+   than a floating word with content underneath it. */
+.section-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap; margin-bottom: clamp(1.6rem, 3vw, 2.6rem);
+}
+.section-head .h-lg { margin: 0; }
+.section-head > div { max-width: 46ch; }
+.section-head .lede { margin-top: 0.7rem; }
+.section-head .carousel-arrows { margin-top: 0; }
 .arrow-btn {
   width: 46px; height: 46px; border-radius: 50%;
   border: 1.5px solid rgba(25, 27, 32, 0.25); background: transparent;
@@ -586,6 +621,7 @@ h3, .h-sm { font-size: var(--t-h4); letter-spacing: -0.01em; }
 }
 @media (max-width: 720px) {
   .section { padding-block: var(--space-section-tight); }
+  .carousel > * { flex: 0 0 min(78%, 300px); }
   .statement { padding-block: var(--space-section-tight); }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .hero { min-height: 78svh; }
@@ -599,4 +635,10 @@ h3, .h-sm { font-size: var(--t-h4); letter-spacing: -0.01em; }
 .about-vision { padding-top: 4.5rem; }
 @media (max-width: 980px) {
   .about-vision { padding-top: 4rem; }
+}
+
+/* Postal address: one block, tight leading, no list indent. */
+.address-block {
+  display: grid; gap: 0.1rem; font-style: normal; font-weight: 600;
+  line-height: 1.55; margin: 0.4rem 0 0;
 }

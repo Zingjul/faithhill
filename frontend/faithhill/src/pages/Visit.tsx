@@ -51,7 +51,7 @@ export default function Visit() {
             </ul>
             <p className="lede" style={{ marginBottom: "1.2rem" }}>{VISIT.servicesIntro}</p>
             <p className="lede">
-              We meet at {CHURCH.shortAddress}, {CHURCH.addressLines[1]}.
+              We meet at {CHURCH.shortAddress} — {CHURCH.oneLine}.
             </p>
           </Reveal>
         </div>
@@ -65,8 +65,21 @@ export default function Visit() {
               <p className="eyebrow">{VISIT.locationLabel}</p>
               <h2 className="h-lg">{VISIT.locationTitle}</h2>
               <p className="lede" style={{ marginBottom: "1.2rem" }}>{VISIT.locationBody}</p>
-              <p style={{ fontWeight: 600 }}>
-                {CHURCH.addressLines[0]}, {CHURCH.addressLines[1]}
+              <address className="address-block">
+                {CHURCH.addressLines.map((line) => (
+                  <span key={line}>{line}</span>
+                ))}
+              </address>
+              <p className="lede">{CHURCH.phone}</p>
+              <p style={{ marginTop: "1.6rem" }}>
+                <a
+                  className="btn-pill btn-outline"
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CHURCH.mapQuery)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Get Directions
+                </a>
               </p>
               <p className="lede">See you on Sunday. We’ll have a seat for you.</p>
             </div>

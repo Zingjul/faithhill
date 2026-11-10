@@ -38,29 +38,39 @@ export default function About() {
         </div>
       </section>
 
-      {/* Values carousel */}
-      <section className="section center" aria-labelledby="values">
+      {/* Values: a titled row, left aligned, with the arrows on the heading
+          line. Left alignment and a shared intro stop the heading sitting
+          alone like a stray label over a sliced card. */}
+      {values.length > 0 ? (
+      <section className="section" aria-labelledby="values">
         <div className="container">
           <Reveal>
-            <h2 id="values" className="h-lg" style={{ marginBottom: "2.2rem" }}>
-              Our Values
-            </h2>
+            <CarouselRow
+              heading={
+                <div>
+                  <p className="eyebrow">What we hold to</p>
+                  <h2 id="values" className="h-lg">Our Values</h2>
+                  <p className="lede">
+                    The convictions that shape how we worship, serve and welcome
+                    people at Faith Hill.
+                  </p>
+                </div>
+              }
+            >
+              {values.map((v, i) => (
+                <article key={v.id} className="mini-card">
+                  <img src={VALUE_IMAGES[i % VALUE_IMAGES.length]} alt="" />
+                  <div className="mini-card-body">
+                    <h4>{v.title}</h4>
+                    <p>{v.description}</p>
+                  </div>
+                </article>
+              ))}
+            </CarouselRow>
           </Reveal>
         </div>
-        <div className="container">
-          <CarouselRow>
-            {values.map((v, i) => (
-              <article key={v.id} className="mini-card">
-                <img src={VALUE_IMAGES[i % VALUE_IMAGES.length]} alt="" />
-                <div className="mini-card-body">
-                  <h4>{v.title}</h4>
-                  <p>{v.description}</p>
-                </div>
-              </article>
-            ))}
-          </CarouselRow>
-        </div>
       </section>
+      ) : null}
 
       {/* Mission band */}
       <section
@@ -106,7 +116,8 @@ export default function About() {
         </div>
       </section>
 
-      {/* Beliefs accordion */}
+      {/* Beliefs accordion — an empty accordion reads as a broken page. */}
+      {beliefs.length > 0 ? (
       <section className="section" aria-labelledby="beliefs">
         <div className="container split" style={{ alignItems: "start" }}>
           <Reveal>
@@ -129,6 +140,7 @@ export default function About() {
           </Reveal>
         </div>
       </section>
+      ) : null}
 
       {/* Story band */}
       <section className="section band center" aria-labelledby="story">
