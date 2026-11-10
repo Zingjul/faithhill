@@ -1,23 +1,58 @@
 /* ==========================================================================
    Faith Hill — public website design system
-   Aesthetic: warm paper background, periwinkle bands, royal-blue pill CTAs,
-   dark image cards, Space Grotesk display type.
+
+   Aesthetic: warm bone ground, periwinkle and near-black full-bleed bands,
+   royal-blue pill CTAs, Space Grotesk display type at editorial scale.
+
+   Three rules hold the layout together:
+   1. Sections are full-bleed bands, edge to edge. No container wraps a
+      background; .container only limits text width inside a band.
+   2. Art that leads a chapter touches the viewport edge with square corners.
+      Rounded, inset imagery is reserved for small cards.
+   3. Vertical rhythm comes from --space-section only. Nothing sets its own
+      ad-hoc section padding.
    ========================================================================== */
 
 :root {
-  --paper: #f4f3ef;
-  --card: #ffffff;
-  --ink: #191b20;
-  --ink-soft: #4b5158;
-  --muted: #91897c;
-  --line: #e3e0d8;
+  /* --- palette: warm, but cooled just enough to read as considered ------- */
+  --bone: #f7f4ee;      /* main warm ground */
+  --paper: #efece4;     /* deeper warm band, for alternation */
+  --card: #fffdf8;
+  --ink: #17181b;
+  --ink-soft: #4a4f57;
+  --muted: #857e72;     /* warm grey, less gold than before */
+  --line: #e0dbd0;
   --blue: #3b62e2;
   --blue-dark: #2e4dbb;
-  --peri: #c2d1ef; /* light periwinkle band */
-  --dark: #17181c;
-  --radius: 22px;
+  --peri: #c2d1ef;
+  --peri-deep: #a9bce6;
+  --dark: #16171a;
+  --dark-soft: #1e1f23;
+
+  /* --- layout ----------------------------------------------------------- */
+  --measure: 1200px;                      /* text container */
+  --gutter: clamp(1.25rem, 4vw, 3.5rem);  /* single source of side padding */
+  --radius: 14px;                         /* was 22 — softer reads dated */
+  --radius-lg: 20px;
+
+  /* --- rhythm ----------------------------------------------------------- */
+  --space-section: clamp(5rem, 11vh, 9rem);
+  --space-section-tight: clamp(3rem, 6vh, 5rem);
+  --grid-gap: clamp(1rem, 2.2vw, 2rem);
+
+  /* --- type scale: fluid, each step clearly distinct --------------------- */
+  --t-display: clamp(3rem, 8.2vw, 6.75rem);  /* hero / statement  108px max */
+  --t-h2: clamp(2.4rem, 5.4vw, 4.5rem);      /* section heading    72px max */
+  --t-h3: clamp(1.5rem, 2.6vw, 2rem);
+  --t-h4: clamp(1.1rem, 1.6vw, 1.35rem);
+  --t-lede: clamp(1.02rem, 1.35vw, 1.22rem);
+  --t-body: 1rem;
+  --t-eyebrow: 0.72rem;
+
   --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 * { box-sizing: border-box; }
@@ -26,7 +61,7 @@ html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
-  background: var(--paper);
+  background: var(--bone);
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 16px;
@@ -46,28 +81,112 @@ h1, h2, h3, h4, .display {
   margin: 0;
 }
 
-.container { max-width: 1180px; margin: 0 auto; padding: 0 1.4rem; }
-.section { padding: 5.5rem 0; }
-.section-tight { padding: 3.5rem 0; }
+.container { max-width: var(--measure); margin: 0 auto; padding: 0 var(--gutter); }
+
+/* ---- sections: rhythm comes from a few named steps, not ad-hoc padding -- */
+.section { padding-block: var(--space-section); }
+.section-tight { padding-block: var(--space-section-tight); }
 .center { text-align: center; }
-.eyebrow {
-  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.14em;
-  text-transform: uppercase; color: var(--muted); margin: 0 0 0.9rem;
-}
-.lede { color: var(--ink-soft); max-width: 560px; margin: 0.7rem 0 0; }
 .center .lede { margin-inline: auto; }
 
-.h-xl { font-size: clamp(2.6rem, 6.5vw, 4.6rem); }
-.h-lg { font-size: clamp(2rem, 4.5vw, 3.1rem); }
-.h-md { font-size: clamp(1.5rem, 3vw, 2.1rem); }
+/* Full-bleed band. One background, edge to edge, no radius, no shadow.
+   Every dark or tinted chapter uses this so sections read as distinct. */
+.band {
+  background: var(--peri);
+  padding-block: var(--space-section);
+}
+.band-paper { background: var(--paper); padding-block: var(--space-section); }
+.band-dark { background: var(--dark); color: #f2f0ea; padding-block: var(--space-section); }
+.band-dark .lede { color: rgba(242, 240, 234, 0.74); }
+.band-dark .eyebrow { color: rgba(242, 240, 234, 0.55); }
+.band-dark .btn-pill.btn-outline { color: #fff; border-color: rgba(255, 255, 255, 0.5); }
+.band-dark .btn-pill.btn-outline:hover { border-color: #fff; background: rgba(255, 255, 255, 0.08); }
+
+/* Both bands already pad vertically; a .section inside would double up. */
+.band > .container > .section, .band-dark > .container > .section { padding-block: 0; }
+
+.eyebrow {
+  font-size: var(--t-eyebrow); font-weight: 600; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--muted); margin: 0 0 0.9rem;
+}
+.lede {
+  color: var(--ink-soft); font-size: var(--t-lede); line-height: 1.62;
+  max-width: 46ch; margin: 1.1rem 0 0;
+}
+
+.h-xl { font-size: var(--t-display); line-height: 0.98; letter-spacing: -0.03em; }
+.h-lg { font-size: var(--t-h2); line-height: 1.02; letter-spacing: -0.025em; }
+.h-md { font-size: var(--t-h3); line-height: 1.1; letter-spacing: -0.015em; }
+h3, .h-sm { font-size: var(--t-h4); letter-spacing: -0.01em; }
+
+/* ------------------------------------------------------- editorial grid */
+/* Full-bleed split: art on one side touching the edges, copy on the other.
+   Square corners on the art — the ragged/rounded containment is what made
+   the site read as "card in a window" rather than a composed page.        */
+.split-bleed {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  background: var(--paper);
+}
+.split-bleed > .split-media { position: relative; min-height: clamp(340px, 46vw, 620px); }
+.split-bleed > .split-media img { position: absolute; width: 100%; height: 100%; object-fit: cover; }
+.split-bleed > .split-copy {
+  display: grid; align-content: center; align-items: start;
+  padding: var(--space-section) var(--gutter);
+  padding-left: clamp(2rem, 6vw, 6rem);
+}
+.split-bleed .split-copy .h-lg { max-width: 15ch; }
+.split-bleed.flip > .split-media { order: 2; }
+
+/* Two photos meeting in the middle, edge to edge. No gap, no radius —
+   the seam itself is the composition. */
+.photo-halves {
+  display: grid; grid-template-columns: 1fr 1fr;
+  min-height: clamp(280px, 38vw, 480px);
+}
+.photo-half { position: relative; overflow: hidden; background: var(--dark); }
+.photo-half img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.7s var(--ease);
+}
+.photo-half:hover img { transform: scale(1.035); }
+
+/* Copy-only cards inside a dark band: no image, no box, just type. */
+.text-cards { align-items: start; }
+.text-cards .h-lg { max-width: 12ch; margin-bottom: 0; }
+.text-cards .lede { color: rgba(242, 240, 234, 0.72); }
+
+/* Art inside a full-bleed split that links out. */
+.split-art { position: absolute; inset: 0; display: block; }
+.split-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.split-art .play {
+  position: absolute; inset: 0; margin: auto; width: 78px; height: 78px;
+  display: grid; place-items: center; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92); color: var(--ink); font-size: 1.4rem;
+  transition: transform 0.25s var(--ease);
+}
+.split-art:hover .play { transform: scale(1.08); }
+
+/* Centred statement block: the "Come Worship" chapter. */
+.statement {
+  padding-block: clamp(4.5rem, 10vh, 8rem);
+  background: var(--peri);
+}
+.statement .h-lg { max-width: 20ch; margin-inline: auto; }
+.statement .lede { max-width: 62ch; }
+
+.statement-dark { background: var(--dark); color: #f2f0ea; }
+.statement-dark .lede { color: rgba(242, 240, 234, 0.74); }
+.statement-dark .eyebrow { color: rgba(242, 240, 234, 0.55); }
 
 /* --------------------------------------------------------------- buttons */
 .btn-pill {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-  padding: 0.85rem 1.9rem; border-radius: 999px; border: 0;
-  font-family: var(--font-display); font-weight: 600; font-size: 0.95rem;
-  background: var(--blue); color: #fff; transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+  padding: 1.05rem 2.3rem; border-radius: 999px; border: 0;
+  font-family: var(--font-display); font-weight: 600; font-size: 1rem;
+  background: var(--blue); color: #fff;
+  transition: background 0.2s var(--ease), transform 0.15s var(--ease), border-color 0.2s;
 }
 .btn-pill:hover { background: var(--blue-dark); transform: translateY(-1px); }
 .btn-pill:active { transform: translateY(0); }
@@ -78,7 +197,7 @@ h1, h2, h3, h4, .display {
 .btn-pill.btn-outline:hover { border-color: var(--ink); background: rgba(25, 27, 32, 0.04); }
 .on-dark .btn-pill.btn-outline, .btn-pill.btn-outline.on-dark { color: #fff; border-color: rgba(255, 255, 255, 0.55); }
 .on-dark .btn-pill.btn-outline:hover { border-color: #fff; background: rgba(255, 255, 255, 0.08); }
-.btn-pill.btn-sm { padding: 0.55rem 1.2rem; font-size: 0.85rem; }
+.btn-pill.btn-sm { padding: 0.7rem 1.4rem; font-size: 0.88rem; }
 
 /* --------------------------------------------------------------- header */
 .site-header {
@@ -155,9 +274,12 @@ h1, h2, h3, h4, .display {
   content: ""; position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(15, 18, 25, 0.34) 0%, rgba(15, 18, 25, 0) 38%, rgba(15, 18, 25, 0.62) 100%);
 }
-.hero-content { position: relative; z-index: 1; width: 100%; padding-bottom: 4.5rem; }
-.hero-content .h-xl { max-width: 14ch; text-shadow: 0 2px 30px rgba(0, 0, 0, 0.35); }
-.hero-actions { display: flex; gap: 0.75rem; margin-top: 1.6rem; flex-wrap: wrap; }
+.hero-content { position: relative; z-index: 1; width: 100%; padding-bottom: clamp(3.5rem, 8vh, 6rem); }
+.hero-content .h-xl { max-width: 13ch; letter-spacing: -0.035em; }
+.hero-content .eyebrow {
+  color: rgba(255, 255, 255, 0.78); margin-bottom: 1.1rem;
+}
+.hero-actions { display: flex; gap: 0.7rem; margin-top: 2.1rem; flex-wrap: wrap; }
 
 /* Slim hero for interior pages */
 .hero-slim { min-height: 58svh; }
@@ -175,18 +297,16 @@ h1, h2, h3, h4, .display {
   background: linear-gradient(180deg, rgba(15, 18, 25, 0) 30%, rgba(15, 18, 25, 0.82) 100%);
 }
 .img-card:hover img { transform: scale(1.045); }
-.img-card-body { padding: 1.6rem; }
+.img-card-body { padding: clamp(1.6rem, 3vw, 2.6rem); }
 .img-card-body .eyebrow { color: rgba(255, 255, 255, 0.65); margin-bottom: 0.4rem; }
-.img-card-body h3 { font-size: 1.55rem; margin-bottom: 0.45rem; }
+.img-card-body h3 { font-size: clamp(1.6rem, 2.6vw, 2.3rem); letter-spacing: -0.02em; margin-bottom: 0.6rem; }
 .img-card-body p { margin: 0 0 1.1rem; color: rgba(255, 255, 255, 0.85); font-size: 0.92rem; max-width: 42ch; }
-.two-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.3rem; }
-
-/* ----------------------------------------------------------- periwinkle band */
-.band { background: var(--peri); }
+.two-cards { display: grid; grid-template-columns: 1fr 1fr; gap: var(--grid-gap); }
 
 /* -------------------------------------------------------------- split rows */
-.split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.6rem, 4vw, 4rem); align-items: center; }
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.8rem, 4vw, 4.5rem); align-items: center; }
 .split .frame { border-radius: var(--radius); overflow: hidden; }
+.split .frame.square { border-radius: 0; }
 .split .frame img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4 / 3; }
 
 /* ---------------------------------------------------------------- carousel */
@@ -361,15 +481,16 @@ h1, h2, h3, h4, .display {
 /* ---------------------------------------------------------------- footer */
 .site-footer { background: var(--dark); color: #cfd3da; margin-top: 0; }
 .footer-grid {
-  display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 2.5rem; padding: 4.5rem 0 2.5rem;
+  display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: clamp(2rem, 4vw, 3.5rem);
+  padding-block: var(--space-section) 2.5rem;
 }
 .footer-brand .brand-link { color: #fff; }
-.footer-brand p { max-width: 34ch; font-size: 0.9rem; }
+.footer-brand p { max-width: 34ch; font-size: 0.95rem; line-height: 1.6; }
 .footer-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 1.2rem 0 1.8rem; }
 .footer-contact { font-size: 0.88rem; display: grid; gap: 0.35rem; }
 .footer-contact a { text-decoration: underline; text-underline-offset: 3px; }
 .footer-col h5 {
-  font-family: var(--font-body); font-size: 0.72rem; text-transform: uppercase;
+  font-family: var(--font-body); font-size: 0.74rem; text-transform: uppercase;
   letter-spacing: 0.12em; color: var(--muted); margin: 0 0 0.9rem;
 }
 .footer-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.45rem; }
@@ -448,14 +569,34 @@ h1, h2, h3, h4, .display {
   .menu-overlay { grid-template-columns: 1fr; }
   .menu-image { display: none; }
   .featured-sermon, .two-col-detail, .split, .two-cards { grid-template-columns: 1fr; }
+
+  .photo-halves { grid-template-columns: 1fr; min-height: 0; }
+  .photo-half { min-height: clamp(220px, 44vw, 320px); }
+
+  /* Stacked full-bleed split: art first, then copy, both edge to edge. */
+  .split-bleed { grid-template-columns: 1fr; }
+  .split-bleed > .split-media { min-height: clamp(260px, 52vw, 420px); }
+  .split-bleed.flip > .split-media { order: 0; }
+  .split-bleed > .split-copy {
+    padding: var(--space-section-tight) var(--gutter);
+  }
+  .split-bleed .split-copy .h-lg { max-width: 100%; }
+
   .media-hero { aspect-ratio: 16 / 9; }
 }
 @media (max-width: 720px) {
-  .section { padding: 3.8rem 0; }
+  .section { padding-block: var(--space-section-tight); }
+  .statement { padding-block: var(--space-section-tight); }
   .footer-grid { grid-template-columns: 1fr 1fr; }
   .hero { min-height: 78svh; }
   .hero-content { padding-bottom: 3rem; }
   .load-more-wrap .btn-pill { min-width: 0; width: 100%; }
   .site-header { padding: 0.9rem 1rem; }
   .brand-name { font-size: 1.15rem; }
+}
+
+/* Interior pages start under a fixed header: give the first band room. */
+.about-vision { padding-top: 4.5rem; }
+@media (max-width: 980px) {
+  .about-vision { padding-top: 4rem; }
 }

@@ -67,8 +67,8 @@ export default function Home() {
           <Reveal>
             <h2 id="about-home" className="h-lg">About Us</h2>
             <p className="lede">{ABOUT_STATEMENT}</p>
-            <p style={{ marginTop: "1.4rem" }}>
-              <Link to="/about" className="btn-pill btn-sm">
+            <p style={{ marginTop: "2rem" }}>
+              <Link to="/about" className="btn-pill btn-outline">
                 Want to Learn More?
               </Link>
             </p>
@@ -76,7 +76,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section band center" aria-labelledby="worship-home">
+      <section className="statement center" aria-labelledby="worship-home">
         <div className="container">
           <Reveal>
             <p className="eyebrow">{sundayLabel}</p>
@@ -85,7 +85,7 @@ export default function Home() {
               Join us in person! We’d love to host you. Find service times, directions,
               and everything else you need for your first visit by clicking the button below.
             </p>
-            <p style={{ marginTop: "1.4rem" }}>
+            <p style={{ marginTop: "2.1rem" }}>
               <Link to="/visit" className="btn-pill">
                 Plan A Visit
               </Link>
@@ -94,8 +94,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section center" aria-labelledby="next-home">
-        <div className="container">
+      <section className="split-bleed" aria-labelledby="next-home">
+        <div className="split-media">
+          <img src="/images/lobby-connect.jpg" alt="People connecting after a Sunday service" />
+        </div>
+        <div className="split-copy">
           <Reveal>
             <p className="eyebrow">Get involved</p>
             <h2 id="next-home" className="h-lg">Next Steps</h2>
@@ -103,7 +106,7 @@ export default function Home() {
               Wondering how you can grow in your relationship with Jesus?
               Find out what your next steps are.
             </p>
-            <p style={{ marginTop: "1.4rem" }}>
+            <p style={{ marginTop: "2rem" }}>
               <Link to="/next-steps" className="btn-pill">
                 Take Your Next Step
               </Link>
@@ -112,66 +115,60 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section-tight">
-        <div className="container two-cards">
-          <Reveal>
-            <Link to="/team" className="img-card">
-              <img src="/images/portrait-archbishop.jpg" alt="Our team" />
-              <div className="img-card-body">
-                <p className="eyebrow">Meet our team</p>
-                <h3>Staff &amp; Leaders</h3>
-                <p>
-                  Our dedicated team of pastors and staff are here to provide spiritual
-                  guidance and support on your faith journey.
-                </p>
-                <span className="btn-pill">Our Staff &amp; Leaders</span>
-              </div>
-            </Link>
-          </Reveal>
-          <Reveal delay={1}>
-            <Link to="/calendar" className="img-card">
-              <img src="/images/outreach.jpg" alt="Church events" />
-              <div className="img-card-body">
-                <p className="eyebrow">Our calendar</p>
-                <h3>See What’s Happening</h3>
-                <p>
-                  Check out this month’s events to find out what’s happening and how
-                  you can be involved.
-                </p>
-                <span className="btn-pill">Our Calendar</span>
-              </div>
-            </Link>
-          </Reveal>
+      <section aria-label="Our team and calendar">
+        <div className="photo-halves">
+          <Link to="/team" className="photo-half" aria-label="Meet our team">
+            <img src="/images/portrait-archbishop.jpg" alt="Our team" />
+          </Link>
+          <Link to="/calendar" className="photo-half" aria-label="See our calendar">
+            <img src="/images/outreach.jpg" alt="Church events" />
+          </Link>
+        </div>
+        <div className="band-dark">
+          <div className="container two-cards text-cards">
+            <Reveal>
+              <p className="eyebrow">Meet our team</p>
+              <h3 className="h-lg">Staff &amp; Leaders</h3>
+              <p className="lede">
+                Our dedicated team of pastors and staff are here to provide spiritual
+                guidance and support on your faith journey.
+              </p>
+              <p style={{ marginTop: "2rem" }}>
+                <Link to="/team" className="btn-pill">
+                  Our Staff &amp; Leaders
+                </Link>
+              </p>
+            </Reveal>
+            <Reveal delay={1}>
+              <p className="eyebrow">Our calendar</p>
+              <h3 className="h-lg">See What’s Happening</h3>
+              <p className="lede">
+                Check out this month’s events to find out what’s happening and how
+                you can be involved.
+              </p>
+              <p style={{ marginTop: "2rem" }}>
+                <Link to="/calendar" className="btn-pill">
+                  Our Calendar
+                </Link>
+              </p>
+            </Reveal>
+          </div>
         </div>
       </section>
 
-      <section className="section" aria-labelledby="teachings-home">
-        <div className="container split">
+      <section className="split-bleed flip" aria-labelledby="teachings-home">
+        <div className="split-media">
+          {latestSermon ? (
+            <Link to={`/messages/${latestSermon.slug}`} className="split-art" aria-label={`Watch ${latestSermon.title}`}>
+              <img src={sermonArtwork(latestSermon)} alt="" />
+              <span className="play">▶</span>
+            </Link>
+          ) : (
+            <img src="/images/series-foundations.jpg" alt="" />
+          )}
+        </div>
+        <div className="split-copy">
           <Reveal>
-            {latestSermon ? (
-              <Link to={`/messages/${latestSermon.slug}`} className="featured-art" aria-label={`Watch ${latestSermon.title}`}>
-                <img
-                  src={sermonArtwork(latestSermon)}
-                  alt=""
-                />
-                <span className="play">▶</span>
-              </Link>
-            ) : (
-              <div className="featured-art">
-                <img src="/images/series-foundations.jpg" alt="" />
-              </div>
-            )}
-            {latestSermon ? (
-              <p className="meta" style={{ marginTop: "0.8rem" }}>
-                <strong>{latestSermon.series_detail?.title ?? latestSermon.title}</strong>
-                <br />
-                <span className="lede" style={{ fontSize: "0.85rem" }}>
-                  {latestSermon.title}
-                </span>
-              </p>
-            ) : null}
-          </Reveal>
-          <Reveal delay={1}>
             <p className="eyebrow">Watch or listen</p>
             <h2 id="teachings-home" className="h-lg">Latest Teachings</h2>
             <p className="lede">
@@ -179,7 +176,15 @@ export default function Home() {
               from Faith Hill and be encouraged, challenged, and reminded of the hope
               we have in Jesus.
             </p>
-            <p style={{ marginTop: "1.4rem" }}>
+            {latestSermon ? (
+              <p className="meta" style={{ marginTop: "1.4rem" }}>
+                <strong>{latestSermon.title}</strong>
+                {latestSermon.series_detail?.title ? (
+                  <span className="muted"> — {latestSermon.series_detail.title}</span>
+                ) : null}
+              </p>
+            ) : null}
+            <p style={{ marginTop: "2rem" }}>
               <Link to="/messages" className="btn-pill btn-outline">
                 More Messages
               </Link>

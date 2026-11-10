@@ -25,17 +25,15 @@ export default function About() {
 
   return (
     <>
-      {/* Vision: image left, text right */}
-      <section className="section" style={{ paddingTop: "7rem" }}>
-        <div className="container split">
+      {/* Vision: full-bleed image, statement copy. Padded for the fixed header. */}
+      <section className="split-bleed about-vision" aria-labelledby="about-vision">
+        <div className="split-media">
+          <img src="/images/about-worship.jpg" alt="Worship at Faith Hill" />
+        </div>
+        <div className="split-copy">
           <Reveal>
-            <div className="frame">
-              <img src="/images/about-worship.jpg" alt="Worship at Faith Hill" />
-            </div>
-          </Reveal>
-          <Reveal delay={1}>
             <p className="eyebrow">Our vision</p>
-            <h1 className="h-lg">{VISION}</h1>
+            <h1 id="about-vision" className="h-lg">{VISION}</h1>
           </Reveal>
         </div>
       </section>
