@@ -6,23 +6,37 @@
 
 export const CHURCH = {
   name: "Faith Hill",
-  fullName: "Faith Hill Prophetic Assembly Church",
+  fullName: "Faith Hill Prophetic Assembly",
   shortAddress: "Faith Hill Auditorium",
-  addressLines: ["Faith Hill Auditorium", "Minna, Niger State"],
+  street: "Plot 499 Cadastral Zone C00",
+  district: "Institute and Research District, Piwoyi",
+  city: "Airport Road, Abuja",
+  country: "Nigeria",
+  /** One-line form, for cards and inline mentions. */
+  oneLine:
+    "Plot 499 Cadastral Zone C00, Institute and Research District, Piwoyi, Airport Road, Abuja",
+  addressLines: [
+    "Plot 499 Cadastral Zone C00",
+    "Institute and Research District, Piwoyi",
+    "Airport Road, Abuja, Nigeria",
+  ],
+  mapQuery:
+    "Faith Hill Prophetic Assembly, Plot 499 Cadastral Zone C00, Institute and Research District, Piwoyi, Airport Road, Abuja",
   email: "hello@faithhill.church",
-  phone: "+234 800 000 0000",
+  phone: "+234 805 610 8461",
   pastor: "ArchBishop Emmanuel Musa Jatau",
 };
 
 export const ABOUT_STATEMENT =
-  "We are a prophetic family raising disciples who carry God's presence into every hill and valley of life.";
+  "Faith Hill is one big family connected by cords of fellowship and love, with Jesus at the centre — a solution hub for the hurting, the rejected, and the restless, and a place to discover who you truly are in Christ.";
 
+/** The church's own vision, in their words. */
 export const VISION =
-  "We are a united movement of diverse disciples reflecting God's Kingdom everywhere.";
+  "A chosen people, set apart to be a blessing to the nations of the earth.";
 
 export const MISSION_LABEL = "His Kingdom Come";
 export const MISSION =
-  "Our desire is to see Faith Hill become a living picture of what God's heavenly Kingdom looks like — a people of faith, prayer and prophecy, serving our city with love.";
+  "To unveil the mind of God for the nations through the finished work of Jesus Christ — a place where people find purpose, life vision, and the truth of who they are in Him.";
 
 export const WHY_FAITH_HILL = {
   label: "Why Faith Hill?",
@@ -31,8 +45,8 @@ export const WHY_FAITH_HILL = {
 };
 
 export const OUR_STORY = [
-  "Faith Hill Prophetic Assembly Church was founded under the leadership of ArchBishop Emmanuel Musa Jatau with a simple conviction: God still speaks, and His people still gather to listen.",
-  "What began as a small fellowship of praying families has grown into a prophetic assembly — worshipping, serving, and believing God for the transformation of our city, one life at a time.",
+  "Faith Hill Prophetic Assembly was founded under the leadership of ArchBishop Emmanuel Musa Jatau with a simple conviction: God still speaks, and His people still gather to listen.",
+  "What began as a small fellowship of praying families has grown into a prophetic assembly in Abuja — worshipping, serving, and believing God for the transformation of our city, one life at a time.",
 ];
 
 export const VISIT = {
@@ -130,7 +144,8 @@ export const PRAY_INTRO = {
 };
 
 export const SOCIALS = [
-  { label: "Facebook", href: "https://facebook.com" },
-  { label: "Instagram", href: "https://instagram.com" },
-  { label: "YouTube", href: "https://youtube.com" },
+  { label: "YouTube", href: "https://www.youtube.com/@faithhillpropheticassembly5358" },
+  { label: "Facebook", href: "https://www.facebook.com/faithhillng/" },
+  { label: "Instagram", href: "https://www.instagram.com/faithhill_ng/" },
+  { label: "TikTok", href: "https://www.tiktok.com/@faithhillng" },
 ];

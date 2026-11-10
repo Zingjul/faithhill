@@ -1,7 +1,14 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 /** Horizontal snap-scroll row with circular arrow buttons (like the reference design). */
-export default function CarouselRow({ children }: { children: ReactNode }) {
+export default function CarouselRow({
+  children,
+  heading,
+}: {
+  children: ReactNode;
+  /** Optional section heading; when given, the arrows sit beside it. */
+  heading?: ReactNode;
+}) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(true);
@@ -30,19 +37,29 @@ export default function CarouselRow({ children }: { children: ReactNode }) {
     el.scrollBy({ left: dir * el.clientWidth * 0.75, behavior: "smooth" });
   };
 
+  const arrows = (
+    <div className="carousel-arrows">
+      <button type="button" className="arrow-btn" onClick={() => scrollBy(-1)} disabled={!canPrev} aria-label="Scroll back">
+        ←
+      </button>
+      <button type="button" className="arrow-btn" onClick={() => scrollBy(1)} disabled={!canNext} aria-label="Scroll forward">
+        →
+      </button>
+    </div>
+  );
+
   return (
     <div className="carousel-wrap">
+      {heading ? (
+        <div className="section-head">
+          {heading}
+          {arrows}
+        </div>
+      ) : null}
       <div className="carousel" ref={trackRef}>
         {children}
       </div>
-      <div className="carousel-arrows">
-        <button type="button" className="arrow-btn" onClick={() => scrollBy(-1)} disabled={!canPrev} aria-label="Scroll back">
-          ←
-        </button>
-        <button type="button" className="arrow-btn" onClick={() => scrollBy(1)} disabled={!canNext} aria-label="Scroll forward">
-          →
-        </button>
-      </div>
+      {heading ? null : arrows}
     </div>
   );
 }
