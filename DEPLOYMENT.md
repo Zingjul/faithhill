@@ -9,7 +9,7 @@ three moving parts:
 | **Postgres** | Supabase | Stores all content, submissions and staff accounts |
 | **Image storage** | Supabase Storage | Holds uploaded photos (Render's disk is wiped on every deploy) |
 | **Public website** | Render static site | The church site visitors see |
-| **Staff console** | Render static site | Content management, on an unguessable path |
+| **Staff console** | Render static site | Content management, on Render's generated hostname |
 | **Videos** | YouTube | Sermons stay on your channel; the site embeds the player |
 
 Total cost on Render's free tier: **$0**. Supabase free tier: **$0**.
@@ -95,7 +95,6 @@ The repo contains `render.yaml`, which defines all three services.
    | `CORS_ALLOWED_ORIGINS` | `https://faith-hill-website.onrender.com,https://your-staff-console.onrender.com` |
    | `CSRF_TRUSTED_ORIGINS` | same two origins |
    | `VITE_API_URL` (both frontends) | `https://faith-hill-api.onrender.com` |
-   | `VITE_BASE_PATH` (staff only) | your secret path, e.g. `/fh-console-7x2k9/` |
 
    You can leave `ALLOWED_HOSTS` / `CORS_*` minimal at first and fill in real
    domains after you see the generated URLs.
@@ -161,16 +160,10 @@ unlisted works fine; private will not play for visitors.
 
 ## 6. The staff console's secret path
 
-Set `VITE_BASE_PATH` on the `fh-staff-console` service to something long and
-random, for example:
-
-```
-/fh-console-7x2k9/
-```
-
-Then staff bookmark `https://<staff-site>.onrender.com/fh-console-7x2k9/`.
-Any other path on that host shows the login screen too — but **the path is not
-the security boundary.** What actually protects the data:
+The console's address is whatever hostname Render generates, for example
+`fh-staff-console-7x2k9.onrender.com`. It is random rather than `admin`, which
+keeps it out of casual scanning — but **that is not the security boundary.**
+What actually protects the data:
 
 | Layer | Where |
 |---|---|
@@ -180,7 +173,11 @@ the security boundary.** What actually protects the data:
 | Search engines are told to stay out | `X-Robots-Tag: noindex` header |
 | HTTPS only, HSTS preload | production hardening block |
 
-Treat the long path as a curtain, not a vault. A strong password is the lock.
+> **Do not put the dashboard on a sub-path** like `/admin/`. A static host
+> publishes `dist/` at the site root, so an app built for a sub-path requests
+> assets that do not exist there — the page loads blank with no error. Serve it
+> from the site root (the default) and rely on authentication, not a hidden URL.
+
 
 ---
 
@@ -239,7 +236,6 @@ Treat the long path as a curtain, not a vault. A strong password is the lock.
 | Variable | Purpose |
 |---|---|
 | `VITE_API_URL` | API origin, e.g. `https://faith-hill-api.onrender.com` |
-| `VITE_BASE_PATH` | Staff console only: secret path prefix |
 
 > Frontend variables are compiled in at **build** time. Changing one requires a
 > redeploy of that static site, not just a restart.

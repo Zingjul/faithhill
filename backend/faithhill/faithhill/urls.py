@@ -21,6 +21,7 @@ from django.urls import include, path
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .api_auth import MeView, ThrottledTokenObtainPairView
+from .diagnostics import DiagnosticsView
 
 
 def health(_request):
@@ -66,6 +67,7 @@ urlpatterns = [
     path("", root_index, name="root-index"),
     path("admin/", admin.site.urls),
     path("api/health/", health, name="api-health"),
+    path("api/diagnostics/", DiagnosticsView.as_view(), name="api-diagnostics"),
     path("api/auth/token/", ThrottledTokenObtainPairView.as_view(), name="token-obtain-pair"),
     path("api/auth/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
     path("api/auth/me/", MeView.as_view(), name="auth-me"),

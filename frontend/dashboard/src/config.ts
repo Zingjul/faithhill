@@ -1,20 +1,17 @@
 /**
- * Staff dashboard runtime configuration.
+ * Staff dashboard: URLs derive from where the app is actually served.
  *
- * BASE_PATH
- *   The URL path the dashboard is served from. Staff reach the console at
- *   something unguessable (e.g. https://site.example/fh-console-7x2k9/) rather
- *   than a predictable /admin. Set VITE_BASE_PATH at build time to change it.
+ * The dashboard is a single-page app served from a static host. Vite injects
+ * `import.meta.env.BASE_URL` from its `base` setting, so assets and the router
+ * read the same value and cannot disagree.
  *
- *   This is obscurity, not security: the API enforces JWT auth plus is_staff on
- *   every request, login is throttled, and the host sends X-Robots-Tag noindex.
- *   The long path simply keeps the door out of view of casual scanners.
+ * There is deliberately no VITE_BASE_PATH setting. Serving the app from a
+ * sub-path requires the host to serve index.html *and* the assets from that
+ * sub-path, which a plain static publish directory does not do — the app loads
+ * but its JavaScript 404s, producing a blank page. A static build is served
+ * from the site root, so the base path is always "/".
  */
-const rawBase = import.meta.env.VITE_BASE_PATH ?? "/";
-
-/** Always begins and ends with "/" so React Router and asset URLs agree. */
-export const BASE_PATH =
-  "/" + rawBase.replace(/^\/+|\/+$/g, "") + (rawBase.replace(/^\/+|\/+$/g, "") ? "/" : "");
+export const BASE_PATH = import.meta.env.BASE_URL || "/";
 
 /** Strip the deployment base path from window.location.pathname. */
 export function stripBase(pathname: string): string {
