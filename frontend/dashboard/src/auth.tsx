@@ -9,6 +9,7 @@ import {
 import { Navigate } from "react-router-dom";
 import {
   apiFetch,
+  apiPath,
   clearAuth,
   getStoredUser,
   getTokens,
@@ -51,13 +52,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (username: string, password: string) => {
-    const res = await fetch("/api/auth/token/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    });
-    if (!res.ok) return "Invalid username or password.";
-    const tokens = (await res.json()) as { access: string; refresh: string };
+    // apiPath() is required here: the deployed console is on a different origin
+    // from the API, so a relative "/api/..." would resolve against the static
+    // site and return HTML instead of JSON.
+    let res: Response;
+    try {
+      res = await fetch(apiPath("/api/auth/token/"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+    } catch {
+      return "Could not reach the server. Check your connection and try again.";
+    }
+
+    // Never assume a JSON body: a proxy error page, an empty response or an
+    // HTML redirect all parse as "Unexpected end of JSON input".
+    const raw = await res.text();
+    let tokens: { access?: string; refresh?: string } | null = null;
+    try {
+      tokens = raw ? (JSON.parse(raw) as { access?: string; refresh?: string }) : null;
+    } catch {
+      tokens = null;
+    }
+
+    if (!res.ok) {
+      if (res.status === 429) return "Too many attempts. Please wait a minute.";
+      if (res.status >= 500) return `Server error (${res.status}). Try again shortly.`;
+      if (!tokens) return "Unexpected response from the server. Please try again.";
+      return "Invalid username or password.";
+    }
+    if (!tokens?.access || !tokens.refresh) {
+      return "Unexpected response from the server. Please try again.";
+    }
     setTokens(tokens.access, tokens.refresh);
 
     const { ok, data } = await apiFetch<StaffUser>("/api/auth/me/");

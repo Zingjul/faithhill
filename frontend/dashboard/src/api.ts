@@ -117,7 +117,14 @@ export async function apiFetch<T = unknown>(
   const access = localStorage.getItem(ACCESS_KEY);
   if (access) headers.set("Authorization", `Bearer ${access}`);
 
-  let res = await fetch(apiPath(path), { ...init, headers });
+  // A network failure must surface as { ok: false }, not an unhandled
+  // rejection that blanks the console.
+  let res: Response;
+  try {
+    res = await fetch(apiPath(path), { ...init, headers });
+  } catch {
+    return { ok: false, status: 0, data: null };
+  }
 
   if (res.status === 401 && !init?.skipAuthRetry && localStorage.getItem(REFRESH_KEY)) {
     const refreshed = await refreshAccessToken();
