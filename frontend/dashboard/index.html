@@ -6,9 +6,61 @@
     <meta name="robots" content="noindex, nofollow, noarchive" />
     <meta name="referrer" content="no-referrer" />
     <title>Faith Hill Console</title>
+    <script>
+      // Visibility net: a static build fails silently when its JavaScript
+      // cannot be fetched — the page is simply white. Report it instead.
+      (function () {
+        var shown = false;
+        function report(title, detail) {
+          if (shown) return;
+          shown = true;
+          var root = document.getElementById("root");
+          if (!root) return;
+          root.innerHTML =
+            '<div style="min-height:100vh;display:grid;place-items:center;padding:2rem;font-family:system-ui,sans-serif">' +
+            '<div style="max-width:640px">' +
+            '<h1 style="margin:0 0 .5rem">' + title + "</h1>" +
+            '<pre style="background:#fff2f1;border:1px solid #f5c5c0;border-radius:10px;padding:1rem;white-space:pre-wrap;overflow:auto">' +
+            String(detail).replace(/[<>&]/g, function (c) {
+              return { "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c];
+            }) +
+            "</pre></div></div>";
+        }
+
+        window.addEventListener("error", function (e) {
+          if (e.message) report("The console failed to start", e.message);
+        });
+
+        window.addEventListener("unhandledrejection", function (e) {
+          var r = e.reason;
+          report("The console failed to start", r && r.stack ? r.stack : String(r));
+        });
+
+        window.addEventListener("load", function () {
+          setTimeout(function () {
+            var root = document.getElementById("root");
+            if (root && root.children.length === 0) {
+              report(
+                "The console did not load",
+                "No content rendered after 10 seconds, so the JavaScript bundle probably failed to download.\n\n" +
+                  "Check the browser Network tab for the /assets/*.js request:\n" +
+                  "  404  -> the build's base path does not match the publish directory\n" +
+                  "  text/html -> a rewrite rule is catching asset requests"
+              );
+            }
+          }, 10000);
+        });
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <div style="padding:2rem;font-family:system-ui,sans-serif">
+        <h1>JavaScript is required</h1>
+        <p>Please enable JavaScript to use the staff console.</p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

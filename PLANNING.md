@@ -213,7 +213,7 @@ Refinements to §4 based on the templates:
 | Sermon video | YouTube, staff paste the link | Videos stay on the church's channel; site embeds `youtube-nocookie` |
 | YouTube auth | None needed (manual linking) | No API key, no quota, no OAuth refresh to maintain |
 | Frontends | Two Render static sites | Public site + staff console, both CDN-served |
-| Staff console URL | Unguessable path (`VITE_BASE_PATH`) | Keeps it out of casual scanning; JWT + `is_staff` is the real lock |
+| Staff console URL | Render's generated hostname | Random rather than `admin`, so it stays out of casual scanning; JWT + `is_staff` is the real lock |
 | Security | JWT, login throttling, HSTS, noindex | Defense in depth on a public-facing admin |
 
 ### How YouTube integration works

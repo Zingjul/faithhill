@@ -69,9 +69,10 @@ services:
         sync: false
 
   # ---------------------------------------------------------------------
-  # Staff dashboard (static React build) — served from an unguessable path,
-  # NOT from a guessable subdomain like "admin". The real lock is JWT auth
-  # plus is_staff on every API call; this just avoids advertising the door.
+  # Staff dashboard (static React build). Its URL is whatever Render generates
+  # (e.g. fh-staff-console-7x2k9.onrender.com) — random, not "admin". The real
+  # lock is JWT auth plus is_staff on every API call; the hostname only keeps
+  # the door out of casual scanning.
   # ---------------------------------------------------------------------
   - type: web
     name: fh-staff-console
